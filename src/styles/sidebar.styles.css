@@ -1,0 +1,81 @@
+.sidebar-container {
+    display: none;
+}
+
+@media all and (max-width : 768px) {
+    .search-results {
+        display: flex;
+        flex-direction: column;
+        gap : 10px
+    }
+
+
+    .sidebar-container {
+        display: flex;
+        position: fixed;
+        background: black;
+        width: 100vw;
+        height: 100vh;
+        z-index: 99; 
+        color: white;
+        gap: 13rem;
+        flex-direction: column;
+        transition: all 400ms ease-in-out;
+        transform: translateX(100%);
+    }
+
+    .sidebar-container.active {
+        display: flex;
+        align-items: flex-end;
+        transform: translateX(0);
+    }
+
+    .sidebar-container .sidebar-content {
+        display: flex;
+        flex-direction: column;
+        display: flex;
+        align-self: center;
+        text-align: center;
+    }
+
+    .toggle-button {
+        align-self: flex-end;     
+    }
+
+    .sidebar-container .toggle-button{
+        padding: 1.5rem 1rem;
+    }
+
+    .search-box {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: inherit;
+    }
+
+    .sidebar-content input {
+        margin-top: 4rem;
+        padding: 1rem;
+        border-radius: 1rem;
+        position: relative;
+    }
+
+
+    .search-results {
+        inset: 0;
+    }
+
+    .sidebar-content input::placeholder {
+        font-size: 1.1rem;
+    }
+
+
+    @keyframes opacity {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+}

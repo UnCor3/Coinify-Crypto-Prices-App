@@ -1,0 +1,65 @@
+import { useRouter } from "next/router";
+
+export default ({ setCurrentPage, currentPage }: any) => {
+  const router = useRouter();
+  const { rows } = router.query;
+  const safeRows = typeof rows === "string" ? parseInt(rows) : false;
+  const defaultedValues = [10, 25, 50];
+
+  if (safeRows) {
+    const isAvailable = defaultedValues.find((item) => item === safeRows);
+    if (!isAvailable) defaultedValues.push(safeRows);
+  }
+
+  return (
+    <div className="pagination-container">
+      <div className="page-controller">
+        <button
+          className="prev-page"
+          disabled={currentPage === 1 ? true : false}
+          onClick={() => {
+            router.push(`/?rows=${rows}&page=${currentPage - 1}`);
+          }}
+        >
+          {"<"}
+        </button>
+        <div className="current-page">{currentPage}</div>
+        <div
+          className="next-page"
+          onClick={() => {
+            router.push(`/?rows=${rows ? rows : 10}&page=${currentPage + 1}`);
+          }}
+        >
+          {">"}
+        </div>
+      </div>
+      <div className="row-controller">
+        <span>Show rows of</span>
+        <select
+          className="tooltip"
+          onChange={(e: any) => {
+            router.push(`/?rows=${e.target.value}&page=${currentPage}`);
+          }}
+        >
+          {defaultedValues.sort((a, b) => a - b)}
+          {defaultedValues.map((item,i) => {
+            return (
+              <option
+                value={item}
+                key={i}
+                selected={
+                  typeof rows === "string"
+                    ? parseInt(rows) === item
+                    : false
+                }
+              >
+                {item}
+              </option>
+            );
+          })}
+        </select>
+      </div>
+      <hr />
+    </div>
+  );
+};

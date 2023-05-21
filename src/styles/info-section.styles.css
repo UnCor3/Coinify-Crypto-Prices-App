@@ -1,0 +1,11 @@
+section.info {
+    font-size: 1.2vw;
+    padding : 1rem 0.25rem; 
+    font-weight: bolder; 
+}
+
+@media all and (max-width : 768px) {
+    section.info {
+        font-size: 1rem;
+    }
+}

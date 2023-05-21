@@ -1,0 +1,171 @@
+.navbar-container {
+  width: 100vw;
+  height: min-content;
+  background: #000;
+  color: white;
+  position: relative;
+  z-index: 1;
+}
+
+.navbar-wrapper {
+  background: inherit;
+  display: flex;
+  width: 80%;
+  height: 100px;
+  margin: 0 auto;
+  padding: 1rem 0;
+  height: min-content;
+}
+
+.navbar-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+}
+
+.navbar-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.search-bar {
+  display: flex;
+  background: #000;
+  transition: all 50ms ease;
+  flex-direction: column;
+}
+
+.search-bar input {
+  padding: 10px 20px;
+  position: relative;
+  width: 10vw;
+}
+
+.search-bar input:focus ~ svg   {
+  opacity: 0;
+}
+
+.search-bar svg {
+  color: black;
+  position: absolute;
+  right: 10.2%;
+  bottom: 35%;
+  font-size: 25px;
+  transition: all 200ms ease;
+}
+
+
+.search-bar input::placeholder {
+  font-size: 120%;
+}
+
+ .search-results {
+  display: none;
+}
+
+.search-bar input:focus-within ~ .search-results.desktop,.search-results.desktop:hover {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  width: 10vw;
+  background : black;
+  top: 100%;
+  padding-bottom: 10px;
+}
+
+.search-result {
+  color: white;
+  padding: 0.4rem;
+  text-align: center;
+  background: inherit;
+}
+
+
+.navbar-brand {
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.sidebar-toggler {
+  display: none;
+}
+
+@media all and (min-width: 1024px) and (max-width:1440px) {
+  .search-bar input {
+    width: 17.5vw;
+  }
+
+  .search-bar input:focus ~ .search-results.desktop,.search-results.desktop:hover {
+    width: 17.5vw;
+  }
+}
+
+@media all and (min-width: 1440px) {
+    .search-bar input {
+      width: 15vw;
+    }
+    .search-bar input:focus ~ .search-results.desktop,.search-results.desktop:hover {
+      width: 15vw;
+    }
+}
+
+@media all and (min-width: 768px) and (max-width: 1024px) {
+  .search-bar input {
+    width: 23.5vw;
+    height: 6vh;
+  }
+
+  .search-bar input:focus ~ .search-results.desktop,.search-results.desktop:hover {
+    width: 23.5vw;
+    height: 6vh;
+  }
+}
+
+
+@media all and (max-width: 768px) {
+  .navbar-wrapper {
+    width: 100%;
+    margin: unset;
+  }
+
+  .search-bar {
+    display: none;
+  }
+
+  
+  .navbar-left {
+    padding-left: 20px;
+  }
+
+  .navbar-right {
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+  }
+
+  .sidebar-toggler {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .bar {
+    width: 2.5rem;
+    height: 0.2rem;
+    background: white;
+    transition: all 250ms ease-in-out;
+}
+
+  .sidebar-toggler.active .bar:nth-child(1) {
+    transform: rotate(-45deg) translate(-9px,10px);
+  }
+  .sidebar-toggler.active .bar:nth-child(2) {
+    opacity: 0;
+}
+
+  .sidebar-toggler.active .bar:nth-child(3) {
+    transform: rotate(45deg) translate(-6px,-8px);
+  }
+}
