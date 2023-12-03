@@ -6,41 +6,36 @@ import "@/styles/pagination.styles.css";
 import "@/styles/footer.styles.css";
 import "@/styles/info-section.styles.css";
 import "@/styles/detailed-price-card.styles.css";
-
+import "react-loading-skeleton/dist/skeleton.css";
 
 import SideBar from "@/components/sidebar/sidebar.component";
 import Navbar from "../components/navbar/navbar.component";
 import type { AppProps } from "next/app";
-import { useState } from "react";
 import { AiFillGithub } from "react-icons/ai";
+import RootContext from "@/context/root.context";
+import { useSideBarContext } from "@/context/side-bar.context";
+import RouteChangeHandler from "@/components/route-change-handler/route-change-handler.component";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
+  const { isSideBarOpen } = useSideBarContext();
 
   return (
-    <>
+    <RootContext>
       <div
         className={
           isSideBarOpen ? "page-content sidebar-active" : "page-content"
         }
       >
-        <SideBar
-          isSideBarOpen={isSideBarOpen}
-          setIsSideBarOpen={setIsSideBarOpen}
-        />
-
+        <RouteChangeHandler />
+        <SideBar />
         <header>
           <nav>
-            <Navbar
-              isSideBarOpen={isSideBarOpen}
-              setIsSideBarOpen={setIsSideBarOpen}
-            />
+            <Navbar />
           </nav>
         </header>
         <div className="main-content">
           <Component {...pageProps} />
         </div>
-
         <footer>
           <div className="footer-content">
             <div className="my-socials">
@@ -63,6 +58,6 @@ export default function App({ Component, pageProps }: AppProps) {
           </div>
         </footer>
       </div>
-    </>
+    </RootContext>
   );
 }

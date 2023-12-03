@@ -1,10 +1,16 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useEffect, useRef } from "react";
+import { FC, useEffect, useRef } from "react";
+import { CoinData } from "../../../types";
+import { getProperInfo } from "@/util/getPrice";
+import Link from "next/link";
 
-export default ({ price, name, fullName, imageUrl, change24, symbol }: any) => {
+const CoinCart: FC<{ item: CoinData }> = ({ item }) => {
   const priceLabelRef = useRef<any>();
-  const router = useRouter();
+
+  const { change24, symbol, name, fullName, imageUrl, price } =
+    getProperInfo(item);
+
   useEffect(() => {
     if (priceLabelRef.current) {
       priceLabelRef.current.classList.toggle("updated");
@@ -22,12 +28,7 @@ export default ({ price, name, fullName, imageUrl, change24, symbol }: any) => {
   }
 
   return (
-    <div
-      className="coin-card"
-      onClick={() => {
-        router.push(`/price/${name.toLowerCase()}-${symbol}`);
-      }}
-    >
+    <Link className="coin-card" href={`/price/${name.toLowerCase()}-${symbol}`}>
       <div className="image">
         <div className="symbol">{name}</div>
         <Image src={imageUrl} alt={name} width={30} height={30} />
@@ -35,16 +36,12 @@ export default ({ price, name, fullName, imageUrl, change24, symbol }: any) => {
       <div className="other-info">
         <div className="fullName">{fullName}</div>
         <div className="price" ref={priceLabelRef}>
-          {price.toString().length > 15
-            ? `$ ${price.toString().slice(0, -14)}`
-            : price.toString().length > 10
-            ? `$ ${price.toString().slice(0, -5)}`
-            : price === "Error"
-            ? "Error"
-            : `$ ${price}`}
+          {price}
         </div>
         <div className={get24HourClassName()}>{change24}</div>
       </div>
-    </div>
+    </Link>
   );
 };
+
+export default CoinCart;
