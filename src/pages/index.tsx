@@ -5,58 +5,43 @@ import Skeleton from "react-loading-skeleton";
 import Head from "next/head";
 import { useErrorContext } from "@/context/error.context";
 import { usePaginationContext } from "@/context/pagination.context";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useWSContext } from "@/context/ws.context";
 import { ErrorBoundary } from "react-error-boundary";
 import { getSubList } from "@/helper/helper";
 import { useRouter } from "next/router";
-import { CoinData, CoinInfoFetch } from "../../types";
-import { useSublistContext } from "@/context/sublist.context";
-
-let isSubListSent = false;
+import { CoinData, SubList } from "../../types";
+import api from "@/api/api";
 
 export default function Home() {
   const [coins, setCoins] = useState<null | CoinData[]>(null);
   const { error, setError } = useErrorContext();
   const { page, rows } = usePaginationContext();
   const { reconnect, socket, disconnect } = useWSContext();
-  const { setSublist } = useSublistContext();
-  const router = useRouter();
+  const isSubListSent = useRef<boolean>(false);
+  const subList = useRef<SubList>([]);
 
+  const router = useRouter();
+  //fetch coin info
   useEffect(() => {
     if (!router.isReady) return;
     const getCoins = async () => {
-      try {
-        //Fetching the coins
-        console.log(rows, page);
-        const response = await fetch(
-          `https://min-api.cryptocompare.com/data/top/mktcapfull?limit=${rows}&tsym=USD&page=${
-            page - 1
-          }&api_key=${process.env.NEXT_PUBLIC_API_KEY}`
-        );
-        const { Data } = (await response.json()) as CoinInfoFetch;
-
-        console.log(Data, "coins fetched");
-        //Checking if the data is an array
-        //or the array is empty and throwing error
-        if (!Array.isArray(Data) || Data.length === 0) {
-          setError(
-            "You either have reached the last page or something went wrong"
-          );
-        }
-        setCoins(Data);
-      } catch (error) {
-        //If an error occurs during fetching
-        setError("Could not fetch coins from api");
+      const data = await api.getCoinsList(page, rows, setError);
+      //@ts-ignore
+      setCoins(data);
+    };
+    getCoins();
+    return () => {
+      if (isSubListSent) {
+        disconnect(subList.current);
+        isSubListSent.current = false;
       }
     };
-    //Calling  function at the bottom
-    getCoins();
   }, [router.isReady, page, rows]);
 
   //Websocket connection here
   useEffect(() => {
-    if (!coins || isSubListSent || !socket) return;
+    if (!coins || isSubListSent.current || !socket) return;
     socket.onclose = (msg) => {
       //console.log(msg);
     };
@@ -95,14 +80,8 @@ export default function Home() {
       }
     };
 
-    const subList = getSubList(coins);
-
-    console.log({ subList }, "subList set");
-    //@ts-ignore
-    setSublist(subList || []);
-
-    //@ts-ignore
-    reconnect(subList);
+    subList.current = getSubList(coins);
+    reconnect(subList.current);
 
     socket!.onopen = () => {
       console.log("socket open");
@@ -113,13 +92,18 @@ export default function Home() {
       };
       socket.send(JSON.stringify(subReq));
     };
-    isSubListSent = true;
-    return () => {
-      console.log(socket.readyState, "hit use");
-      const sublist = getSubList(coins);
-      disconnect(sublist);
-    };
+    isSubListSent.current = true;
   }, [coins]);
+
+  useEffect(() => {
+    //setting everything to initial state
+    //as user can come from a different route
+    if (error) setError("");
+    return () => {
+      //disconnect when unmount
+      disconnect(subList.current);
+    };
+  }, []);
 
   //If there is an error
   if (error)

@@ -1,4 +1,3 @@
-import CoinsContextProvider from "./sublist.context";
 import ErrorContextProvider from "./error.context";
 import PaginationContextProvider from "./pagination.context";
 import SearchResultContextProvider from "./search-result.context";
@@ -12,9 +11,7 @@ const RootContext: FC<{ children: ReactNode }> = ({ children }) => {
       <SearchResultContextProvider>
         <ErrorContextProvider>
           <PaginationContextProvider>
-            <CoinsContextProvider>
-              <WSContextProvider>{children}</WSContextProvider>
-            </CoinsContextProvider>
+            <WSContextProvider>{children}</WSContextProvider>
           </PaginationContextProvider>
         </ErrorContextProvider>
       </SearchResultContextProvider>

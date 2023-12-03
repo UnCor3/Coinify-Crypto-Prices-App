@@ -5,6 +5,8 @@ export const ErrorContext = createContext({
   setError: (_: string) => {},
 });
 
+export type SetStateError = (_: string) => void;
+
 const ErrorContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [error, setError] = useState<string>("");
 

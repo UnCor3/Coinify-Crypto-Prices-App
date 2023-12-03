@@ -1,10 +1,9 @@
 import Skeleton from "react-loading-skeleton";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { useWSContext } from "@/context/ws.context";
 import { debounce } from "@/util/debounce";
-import { useSublistContext } from "@/context/sublist.context";
 import { useErrorContext } from "@/context/error.context";
 import { getProperPrice } from "@/helper/helper";
 
@@ -34,8 +33,8 @@ const Pair = () => {
   const { error, setError } = useErrorContext();
   const [priceUpdated, setPriceUpdated] = useState<boolean>(false);
   const [priceChangeUpdated, setPriceChangeUpdated] = useState<boolean>(false);
-  const { setSublist } = useSublistContext();
   const router = useRouter();
+  const isSubListSent = useRef<boolean>(false);
 
   const { reconnect, socket, disconnect } = useWSContext();
 
@@ -45,20 +44,24 @@ const Pair = () => {
 
   useEffect(() => {
     if (!router.isReady) return;
+    if (isSubListSent.current) return;
     if (!safePair)
       return () => {
         router.push("/");
       };
-    const [crypto, fiat] = safePair.split("-");
 
+    const [crypto, fiat] = safePair.split("-");
+    console.log(pair);
+    console.log({ crypto, fiat });
     //update the on functions
     socket!.onmessage = async (msg) => {
       const parsed: CoinData = JSON.parse(msg.data);
       //Incase invalid or unsupported coin was in the query
+      console.log(parsed, "!!!!");
       if (parsed.TYPE === "500") {
-        setError(
-          "Invalid query params were used in the url or this coin is not supported for websocket connections"
-        );
+        // setError(
+        //   "Invalid query params were used in the url or this coin is not supported for websocket connections"
+        // );
       }
 
       if (parsed.TYPE == "429")
@@ -75,13 +78,12 @@ const Pair = () => {
       }
     };
 
+    //TODO
     const sublist = [`5~CCCAGG~${crypto.toUpperCase()}~${fiat.toUpperCase()}`];
 
-    setSublist(sublist);
     reconnect(sublist);
 
     const handleSinglePair = () => {
-      // handleSetPrice
       const getCoinAsset = async () => {
         //fetching  assets
         try {
@@ -107,6 +109,7 @@ const Pair = () => {
 
     handleSinglePair();
 
+    isSubListSent.current = true;
     return () => {
       disconnect(sublist);
     };

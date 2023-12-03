@@ -14,7 +14,6 @@ import type { AppProps } from "next/app";
 import { AiFillGithub } from "react-icons/ai";
 import RootContext from "@/context/root.context";
 import { useSideBarContext } from "@/context/side-bar.context";
-import RouteChangeHandler from "@/components/route-change-handler/route-change-handler.component";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { isSideBarOpen } = useSideBarContext();
@@ -26,7 +25,6 @@ export default function App({ Component, pageProps }: AppProps) {
           isSideBarOpen ? "page-content sidebar-active" : "page-content"
         }
       >
-        <RouteChangeHandler />
         <SideBar />
         <header>
           <nav>

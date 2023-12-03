@@ -1,3 +1,5 @@
+export type SubList = (string | undefined)[];
+
 type CoinInfo = {
   Id: string;
   Name: string;
