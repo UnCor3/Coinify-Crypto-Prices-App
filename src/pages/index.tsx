@@ -21,7 +21,7 @@ export default function Home() {
   const [coins, setCoins] = useState<null | CoinData[]>(null);
   const { error, setError } = useErrorContext();
   const { page, rows } = usePaginationContext();
-  const { reconnect, socket, disconnect } = useWSContext();
+  const { reconnect, socket, disconnect, destroy } = useWSContext();
   const isSubListSent = useRef<boolean>(false);
   const subList = useRef<SubList>([]);
   const router = useRouter();
@@ -117,7 +117,8 @@ export default function Home() {
 
   const key = process.env.NEXT_PUBLIC_API_KEY;
 
-  if (!key || key === "<YOUR_API_KEY>")
+  if (!key || key === "<YOUR_API_KEY>") {
+    destroy();
     return (
       <div style={{ margin: "1rem", marginTop: "4rem" }}>
         Hey looks like you forgot to add your api key to .env.local file,get
@@ -125,11 +126,13 @@ export default function Home() {
         <a
           href="https://min-api.cryptocompare.com/pricing"
           style={{ fontWeight: "bolder" }}
+          about="_blank"
         >
           here
         </a>
       </div>
     );
+  }
 
   return (
     <>

@@ -14,17 +14,19 @@ export const WSContext = createContext<{
   socket: null | WebSocket;
   disconnect: (_: SubList) => void;
   reconnect: (_: SubList) => void;
+  destroy: () => void;
 }>({
   socket: null,
   disconnect: () => {},
   reconnect: () => {},
+  destroy: () => {},
 });
 
 const WSContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { current: socket } = useRef(
     new WebSocket(
-      `wss://streamer.cryptocompare.com/v2?api_key=${process.env.NEXT_PUBLIC_API_KEY}`
-    )
+      `wss://streamer.cryptocompare.com/v2?api_key=${process.env.NEXT_PUBLIC_API_KEY}`,
+    ),
   );
 
   Emitter.on("reconnect", (req) => {
@@ -58,9 +60,11 @@ const WSContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
       JSON.stringify({
         action: "SubRemove",
         subs: subList,
-      })
+      }),
     );
   };
+
+  const destroy = () => socket.close();
 
   //cleanup for emitter
   useEffect(() => {
@@ -70,7 +74,7 @@ const WSContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   }, []);
 
   return (
-    <WSContext.Provider value={{ disconnect, socket, reconnect }}>
+    <WSContext.Provider value={{ disconnect, socket, reconnect, destroy }}>
       {children}
     </WSContext.Provider>
   );
