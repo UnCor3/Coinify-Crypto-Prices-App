@@ -66,7 +66,7 @@ export default function Home() {
         //Throwing error
         if (parsed.TYPE == 429)
           setError(
-            "Due to api plan limitations you cannot have more than one tab open , please close other tabs and refresh the page."
+            "Due to api plan limitations you cannot have more than one tab open , please close other tabs and refresh the page.",
           );
 
         if (parsed.TYPE == 401 && parsed.MESSAGE === "INVALID_PARAMETER") {
@@ -115,7 +115,9 @@ export default function Home() {
       </>
     );
 
-  if (!process.env.NEXT_PUBLIC_API_KEY)
+  const key = process.env.NEXT_PUBLIC_API_KEY;
+
+  if (!key || key === "<YOUR_API_KEY>")
     return (
       <div style={{ margin: "1rem", marginTop: "4rem" }}>
         Hey looks like you forgot to add your api key to .env.local file,get
