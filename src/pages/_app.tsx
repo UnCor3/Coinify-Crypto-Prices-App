@@ -6,19 +6,26 @@ import "@/styles/pagination.styles.css";
 import "@/styles/footer.styles.css";
 import "@/styles/info-section.styles.css";
 import "@/styles/detailed-price-card.styles.css";
-
+import "react-loading-skeleton/dist/skeleton.css";
+import "@/styles/loading.styles.css";
 
 import SideBar from "@/components/sidebar/sidebar.component";
 import Navbar from "../components/navbar/navbar.component";
 import type { AppProps } from "next/app";
-import { useState } from "react";
 import { AiFillGithub } from "react-icons/ai";
+import RootContext from "@/context/root.context";
+import MainContent from "@/components/main-content/main-content.component";
+import { EventEmitter } from "eventemitter3";
+import Loading from "@/components/loading/loading.component";
+import { useState } from "react";
+
+export const Emitter = new EventEmitter();
 
 export default function App({ Component, pageProps }: AppProps) {
-  const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
+  const [isSideBarOpen, setIsSideBarOpen] = useState(false);
 
   return (
-    <>
+    <RootContext>
       <div
         className={
           isSideBarOpen ? "page-content sidebar-active" : "page-content"
@@ -28,19 +35,14 @@ export default function App({ Component, pageProps }: AppProps) {
           isSideBarOpen={isSideBarOpen}
           setIsSideBarOpen={setIsSideBarOpen}
         />
-
         <header>
           <nav>
-            <Navbar
-              isSideBarOpen={isSideBarOpen}
-              setIsSideBarOpen={setIsSideBarOpen}
-            />
+            <Navbar setIsSideBarOpen={setIsSideBarOpen} />
           </nav>
         </header>
-        <div className="main-content">
+        <MainContent>
           <Component {...pageProps} />
-        </div>
-
+        </MainContent>
         <footer>
           <div className="footer-content">
             <div className="my-socials">
@@ -63,6 +65,7 @@ export default function App({ Component, pageProps }: AppProps) {
           </div>
         </footer>
       </div>
-    </>
+      <Loading />
+    </RootContext>
   );
 }

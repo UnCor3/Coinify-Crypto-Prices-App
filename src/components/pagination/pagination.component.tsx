@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
+import { ChangeEvent } from "react";
 
-export default ({ setCurrentPage, currentPage }: any) => {
+export default ({  currentPage }: any) => {
   const router = useRouter();
   const { rows } = router.query;
   const safeRows = typeof rows === "string" ? parseInt(rows) : false;
@@ -9,6 +10,13 @@ export default ({ setCurrentPage, currentPage }: any) => {
   if (safeRows) {
     const isAvailable = defaultedValues.find((item) => item === safeRows);
     if (!isAvailable) defaultedValues.push(safeRows);
+  }
+
+  const handleRow = (e : ChangeEvent<HTMLSelectElement>) =>
+    router.push(`/?rows=${e.target.value}&page=${currentPage}`);
+
+  const handlePage = () => {
+    router.push(`/?rows=${rows ? rows : 10}&page=${currentPage + 1}`);
   }
 
   return (
@@ -26,9 +34,7 @@ export default ({ setCurrentPage, currentPage }: any) => {
         <div className="current-page">{currentPage}</div>
         <div
           className="next-page"
-          onClick={() => {
-            router.push(`/?rows=${rows ? rows : 10}&page=${currentPage + 1}`);
-          }}
+          onClick={handlePage}
         >
           {">"}
         </div>
@@ -37,21 +43,15 @@ export default ({ setCurrentPage, currentPage }: any) => {
         <span>Show rows of</span>
         <select
           className="tooltip"
-          onChange={(e: any) => {
-            router.push(`/?rows=${e.target.value}&page=${currentPage}`);
-          }}
+          onChange={handleRow}
         >
-          {defaultedValues.sort((a, b) => a - b)}
           {defaultedValues.map((item,i) => {
             return (
               <option
-                value={item}
+                value={ typeof rows === "string"
+                    ? parseInt(rows) === item ? item : undefined
+                    : undefined}
                 key={i}
-                selected={
-                  typeof rows === "string"
-                    ? parseInt(rows) === item
-                    : false
-                }
               >
                 {item}
               </option>

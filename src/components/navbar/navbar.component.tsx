@@ -1,10 +1,14 @@
+import { useSearchResultContext } from "@/context/search-result.context";
+import { debounce } from "@/util/debounce";
 import Link from "next/link";
-import { ChangeEvent, useState } from "react";
+import { Dispatch, FC, SetStateAction, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 
-export default function Navbar({ isSideBarOpen, setIsSideBarOpen }: any) {
-  const [searchResults, setSearchResult] = useState<string[] | null>();
-
+const Navbar: FC<{ setIsSideBarOpen: Dispatch<SetStateAction<boolean>> }> = ({
+  setIsSideBarOpen,
+}) => {
+  const { searchResult, setSearchResult } = useSearchResultContext();
+  const [error, setError] = useState<string | null>(null);
   const handleSideBar = () => {
     const body = document.querySelector("body");
     body?.classList.toggle("sidebar-active");
@@ -12,27 +16,22 @@ export default function Navbar({ isSideBarOpen, setIsSideBarOpen }: any) {
     setIsSideBarOpen((prev: boolean) => !prev);
   };
 
-  function debounce<T extends (...args: any[]) => any>(func: T, delay: number) {
-    let timer: ReturnType<typeof setTimeout>;
-    return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
-      clearTimeout(timer);
-      timer = setTimeout(() => func.apply(this, args), delay);
-    };
-  }
-
-  async function getSearchResult(searchTerm: string): Promise<void> {
+  async function getSearchResult(searchTerm: string) {
     if (searchTerm.length < 3) return setSearchResult(null);
     await fetch(
       `https://min-api.cryptocompare.com/data/blockchain/list?api_key=${process.env.NEXT_PUBLIC_API_KEY}`
     )
       .then((res) => res.json())
       .then((res) => {
-        const result = Object.keys(res.Data).filter((key: string) => {
+        const result = Object.keys(res.Data).filter((key) => {
           if (key.toLowerCase().includes(searchTerm.toLocaleLowerCase())) {
             return key;
           }
         });
         setSearchResult(result);
+      })
+      .catch((err) => {
+        setError(err.message);
       });
   }
 
@@ -40,24 +39,30 @@ export default function Navbar({ isSideBarOpen, setIsSideBarOpen }: any) {
     <div className="navbar-container">
       <div className="navbar-wrapper">
         <div className="navbar-left">
-          <a href="/" className="navbar-brand">
+          <Link href="/" className="navbar-brand">
             Coinify
-          </a>
+          </Link>
         </div>
         <div className="navbar-right">
           <div className="search-bar">
             <input
               type="text"
               placeholder="search for crypto"
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                debounce(() => getSearchResult(e.target.value), 500)()
-              }
+              onChange={(e) => {
+                //@ts-ignore
+                debounce(getSearchResult(e.target.value), 500);
+              }}
             />
-            <FiSearch></FiSearch>
-            {searchResults ? (
-              searchResults.length > 0 ? (
+            <FiSearch />
+            {error ? (
+              <div className="search-results desktop">
+                <div className="search-result">{error}</div>
+              </div>
+            ) : null}
+            {searchResult ? (
+              searchResult.length > 0 ? (
                 <div className="search-results desktop">
-                  {searchResults.map((result, index) => {
+                  {searchResult.map((result, index) => {
                     return (
                       <div className="search-result" key={index}>
                         <Link
@@ -89,4 +94,6 @@ export default function Navbar({ isSideBarOpen, setIsSideBarOpen }: any) {
       </div>
     </div>
   );
-}
+};
+
+export default Navbar;

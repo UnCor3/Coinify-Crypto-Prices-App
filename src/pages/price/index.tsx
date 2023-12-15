@@ -1,7 +1,8 @@
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
-export default () => {
+export default function PriceIndex() {
+  //in case it does not redirect on server side
   const router = useRouter();
 
   useEffect(() => {
@@ -9,4 +10,13 @@ export default () => {
   }, []);
 
   return <>Redirecting to main page</>;
+}
+
+export const getServerSideProps = () => {
+  return {
+    redirect: {
+      destination: "/",
+      permanent: false,
+    },
+  };
 };
