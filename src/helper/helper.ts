@@ -7,3 +7,21 @@ export const getSubList = (coins: CoinData[]) =>
   });
 
 export const getProperPrice = (price: number) => price.toFixed(2);
+
+export const get24HChange = (
+  detailedPrice: any,
+  crypto: string,
+  fiat: string
+) => {
+  const {
+    DISPLAY: {
+      [crypto.toUpperCase()]: {
+        [fiat.toUpperCase()]: { CHANGE24HOUR },
+      },
+    },
+  } = detailedPrice;
+
+  return CHANGE24HOUR;
+};
+
+export const renderAfterCheck = (any: any) => (any ? any : "Error");

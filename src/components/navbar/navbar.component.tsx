@@ -1,13 +1,14 @@
 import { useSearchResultContext } from "@/context/search-result.context";
-import { useSideBarContext } from "@/context/side-bar.context";
 import { debounce } from "@/util/debounce";
 import Link from "next/link";
+import { Dispatch, FC, SetStateAction, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 
-export default function Navbar() {
+const Navbar: FC<{ setIsSideBarOpen: Dispatch<SetStateAction<boolean>> }> = ({
+  setIsSideBarOpen,
+}) => {
   const { searchResult, setSearchResult } = useSearchResultContext();
-  const { setIsSideBarOpen } = useSideBarContext();
-
+  const [error, setError] = useState<string | null>(null);
   const handleSideBar = () => {
     const body = document.querySelector("body");
     body?.classList.toggle("sidebar-active");
@@ -28,6 +29,9 @@ export default function Navbar() {
           }
         });
         setSearchResult(result);
+      })
+      .catch((err) => {
+        setError(err.message);
       });
   }
 
@@ -50,6 +54,11 @@ export default function Navbar() {
               }}
             />
             <FiSearch />
+            {error ? (
+              <div className="search-results desktop">
+                <div className="search-result">{error}</div>
+              </div>
+            ) : null}
             {searchResult ? (
               searchResult.length > 0 ? (
                 <div className="search-results desktop">
@@ -85,4 +94,6 @@ export default function Navbar() {
       </div>
     </div>
   );
-}
+};
+
+export default Navbar;

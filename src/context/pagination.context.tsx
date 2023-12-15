@@ -29,7 +29,6 @@ class PaginationContextProvider extends Component<PaginationComponentProps> {
     const { setError } = this.context;
     const { page: queryPage, rows: queryRows } = router.query;
     let page, rows;
-    console.log(page, rows);
     if (Array.isArray(queryRows)) {
       rows = 10;
     }
@@ -56,8 +55,6 @@ class PaginationContextProvider extends Component<PaginationComponentProps> {
         "Due to api plan limitations this website cannot bring you more than 50 rows of data"
       );
     }
-    console.log({ page, rows });
-
     return (
       <PaginationContext.Provider value={{ page, rows }}>
         {this.props.children}

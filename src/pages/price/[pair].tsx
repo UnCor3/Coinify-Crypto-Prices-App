@@ -1,170 +1,93 @@
-import Skeleton from "react-loading-skeleton";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, FC, useRef } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import { useWSContext } from "@/context/ws.context";
-import { debounce } from "@/util/debounce";
 import { useErrorContext } from "@/context/error.context";
-import { getProperPrice } from "@/helper/helper";
-
-type CoinData = {
-  readonly TYPE: string;
-  readonly PRICE: number;
-  readonly MARKET: string;
-  readonly TOSYMBOL: string;
-  readonly VOLUME24HOUR: number;
-  readonly MAXSUPPLYMKTCAP: number;
-  readonly CURRENTSUPPLYMKTCAP: number;
-  readonly CIRCULATINGSUPPLYMKTCAP: number;
-};
-
-type CoinAsset = {
-  readonly NAME: string;
-  readonly SYMBOL: string;
-  readonly LOGO_URL: string;
-  readonly ASSET_DESCRIPTION: string;
-  readonly ASSET_DESCRIPTION_SUMMARY: string;
-};
+import { renderAfterCheck } from "@/helper/helper";
+import api from "@/api/api";
+import { CoinAsset, DisplayData, Price } from "../../../types";
+import PriceComp from "./_children/price";
+import LabelUpdateEffect from "@/components/label-update/label-update.componet";
+import Desc from "./_children/desc";
+import { useLoadingContext } from "@/context/loading.context";
+import LoadingUI from "./_children/loading-ui";
+import { TbArrowBackUp } from "react-icons/tb";
 
 const Pair = () => {
   const [coinAsset, setCoinAsset] = useState<CoinAsset | undefined>();
-  const [wsData, setWsData] = useState<undefined | CoinData>();
-  const [priceChange, setPriceChange] = useState<undefined | string>();
   const { error, setError } = useErrorContext();
-  const [priceUpdated, setPriceUpdated] = useState<boolean>(false);
-  const [priceChangeUpdated, setPriceChangeUpdated] = useState<boolean>(false);
-  const router = useRouter();
-  const isSubListSent = useRef<boolean>(false);
+  const { setIsLoading } = useLoadingContext();
 
-  const { reconnect, socket, disconnect } = useWSContext();
+  const [price, setPrice] = useState<Price | null>(null);
+  const router = useRouter();
 
   const { pair } = router.query;
 
-  const safePair = typeof pair === "string" ? pair : false;
+  const { validPair, crypto, fiat } = handlePair(router.isReady, pair);
 
+  //learn what is the response if the pair is not valid
   useEffect(() => {
-    if (!router.isReady) return;
-    if (isSubListSent.current) return;
-    if (!safePair)
-      return () => {
-        router.push("/");
-      };
+    //simulate real world
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 150);
 
-    const [crypto, fiat] = safePair.split("-");
-    console.log(pair);
-    console.log({ crypto, fiat });
-    //update the on functions
-    socket!.onmessage = async (msg) => {
-      const parsed: CoinData = JSON.parse(msg.data);
-      //Incase invalid or unsupported coin was in the query
-      console.log(parsed, "!!!!");
-      if (parsed.TYPE === "500") {
-        // setError(
-        //   "Invalid query params were used in the url or this coin is not supported for websocket connections"
-        // );
-      }
+    if (!router.isReady || !validPair) return;
 
-      if (parsed.TYPE == "429")
-        //Api limitation error
-        setError(
-          "Due to api plan limitations you cannot have more than one tab open , please close other tabs and refresh the page."
-        );
-
-      if (parsed.TYPE === "5" && parsed.PRICE) {
-        setWsData(parsed);
-        debounce(async () => {
-          setPriceChange(await get24HChange(crypto, fiat));
-        }, 500);
+    const handleSinglePair = async () => {
+      //fetching
+      try {
+        const [coinsAsset, initialPrice] = await Promise.all([
+          api.getCoinAsset(crypto!),
+          api.getFullPrice(crypto!),
+        ]);
+        const { Data } = coinsAsset;
+        if (initialPrice.Response === "Error")
+          setError("Looks like this pair is removed or not valid");
+        setCoinAsset(Data);
+        setPrice(initialPrice);
+      } catch (error) {
+        const typedError = error as Error;
+        setError(typedError.message);
       }
     };
-
-    //TODO
-    const sublist = [`5~CCCAGG~${crypto.toUpperCase()}~${fiat.toUpperCase()}`];
-
-    reconnect(sublist);
-
-    const handleSinglePair = () => {
-      const getCoinAsset = async () => {
-        //fetching  assets
-        try {
-          const response = await fetch(
-            `https://data-api.cryptocompare.com/asset/v1/data/by/symbol?asset_symbol=${crypto}`,
-            {
-              headers: {
-                authorization: `Apikey ${process.env.NEXT_PUBLIC_API_KEY}`,
-              },
-            }
-          );
-          const { Data } = await response.json();
-          setCoinAsset(Data);
-        } catch (error) {
-          const typedError = error as Error;
-          setError(typedError.message);
-        }
-      };
-
-      getCoinAsset();
-      get24HChange(crypto, fiat);
-    };
-
     handleSinglePair();
-
-    isSubListSent.current = true;
-    return () => {
-      disconnect(sublist);
-    };
   }, [router.isReady, pair]);
 
   //className getter function for 24hour change
-  const getClassName = () => {
-    if (!priceChange) return "up-or-down no-change";
-    return priceChange.includes("-")
-      ? priceChangeUpdated
-        ? "up-or-down down updated"
-        : "up-or-down down"
-      : priceChangeUpdated
-      ? "up-or-down up updated"
-      : "up-or-down up";
+  const getClassName = (CHANGE24HOUR: number) => {
+    if (typeof CHANGE24HOUR != "number") return "up-or-down no-change";
+    switch (true) {
+      case CHANGE24HOUR === 0:
+        return "up-or-down no-change";
+      case CHANGE24HOUR > 0:
+        return "up-or-down up";
+      default:
+        return "up-or-down down";
+    }
   };
 
-  //the function to get 24hour change
+  const goBack = () => router.back();
 
-  //update effect for 24 hour price change
-  useEffect(() => {
-    setPriceChangeUpdated(true);
+  if (error || !validPair) return <>There has been an error : {error}</>;
+  if (!router.isReady || !coinAsset || !price || !crypto || !pair)
+    return <LoadingUI />;
 
-    setTimeout(() => {
-      setPriceChangeUpdated(false);
-    }, 450);
-  }, [priceChange]);
+  const USD_DISPLAY_FIAT = price.DISPLAY[crypto.toUpperCase()].USD;
 
-  //update effect for price change
-  useEffect(() => {
-    setPriceUpdated(true);
+  const USD_RAW_FIAT = price.RAW[crypto.toUpperCase()].USD;
 
-    setTimeout(() => {
-      setPriceUpdated(false);
-    }, 450);
-  }, [wsData]);
+  const { PRICE, CHANGE24HOUR } = USD_DISPLAY_FIAT;
+  const { CHANGE24HOUR: RCHANGE24HOUR } = USD_RAW_FIAT;
 
-  if (error) return <>There has been an error : {error}</>;
-
-  if (!wsData && !coinAsset && !priceChange)
-    return (
-      <div style={{ padding: "0.4rem" }}>
-        <Skeleton
-          duration={0.4}
-          height={"450px"}
-          style={{ borderRadius: "1rem" }}
-        />
-      </div>
-    );
+  const Info = getInfo(USD_DISPLAY_FIAT);
 
   return (
     <>
       <Head>
         {coinAsset?.SYMBOL ? (
-          <title>Coinify - {coinAsset?.SYMBOL}/USD</title>
+          <title>
+            Coinify - {coinAsset?.SYMBOL}/USD {PRICE}
+          </title>
         ) : (
           <title>Coinify</title>
         )}
@@ -173,28 +96,42 @@ const Pair = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="detailed-card">
+        <div
+          onClick={goBack}
+          style={{
+            textAlign: "left",
+            width: "fit-content",
+            marginTop: "1rem",
+            cursor: "pointer",
+          }}
+        >
+          Go back <TbArrowBackUp />
+        </div>
         <div className="important-info">
-          <div className="idk">
-            <img
-              className="coin-image"
-              src={coinAsset?.LOGO_URL}
-              alt={coinAsset?.SYMBOL}
-            />
-            <div className="img-name">
-              {coinAsset?.NAME} Price <span>({coinAsset?.SYMBOL})</span>
+          <div className="coin-profile">
+            <div>
+              <img
+                className="coin-image"
+                src={coinAsset?.LOGO_URL}
+                alt={coinAsset?.SYMBOL}
+              />
             </div>
-            <div
-              className={
-                priceUpdated
-                  ? "detailed-card-price updated"
-                  : "detailed-card-price"
-              }
-            >
-              ${getProperPrice(wsData?.PRICE! || 0)}
+            <div>
+              <div className="img-name">
+                {coinAsset.NAME} Price <span>({coinAsset.SYMBOL})</span>
+              </div>
+              <PriceComp
+                crypto={crypto}
+                fiat={fiat}
+                price={PRICE}
+                setPrice={setPrice}
+              />
             </div>
           </div>
-          <div className={getClassName()}>
-            <div>{priceChange ? priceChange.replace(" ", "") : "Error"}</div>
+          <div className={getClassName(RCHANGE24HOUR)}>
+            <div title="Change in 24 hours">
+              {CHANGE24HOUR ? CHANGE24HOUR : "Error"}
+            </div>
           </div>
         </div>
         <div className="other-info">
@@ -205,42 +142,9 @@ const Pair = () => {
           />
           <div className="toggle-data-wrapper">
             <div className="toggle-data">
-              <div className="volume-day">
-                <div>24H Volume :</div>
-                <div>
-                  {wsData?.VOLUME24HOUR
-                    ? getProperPrice(wsData?.VOLUME24HOUR)
-                    : "Error"}
-                </div>
-              </div>
-              <div className="circulating-supply-mkt-cap">
-                <div>Circulating Supply Market Cap : </div>
-                <div>
-                  {wsData?.CIRCULATINGSUPPLYMKTCAP
-                    ? getProperPrice(wsData?.CIRCULATINGSUPPLYMKTCAP)
-                    : "Error"}
-                </div>
-              </div>
-              <div className="current-supply-mkt-cap">
-                <div>Current Supply Market Cap :</div>
-                <div>
-                  {wsData?.CURRENTSUPPLYMKTCAP
-                    ? getProperPrice(wsData?.CURRENTSUPPLYMKTCAP)
-                    : "Error"}
-                </div>
-              </div>
-              <div className="max-supply-mkt-cap">
-                <div>Max Supply Market Cap :</div>
-                <div>
-                  {wsData?.MAXSUPPLYMKTCAP
-                    ? wsData?.MAXSUPPLYMKTCAP == -1
-                      ? "Error"
-                      : wsData?.MAXSUPPLYMKTCAP
-                      ? wsData?.MAXSUPPLYMKTCAP
-                      : wsData?.MAXSUPPLYMKTCAP
-                    : "Error"}
-                </div>
-              </div>
+              {Info.map((item, i) => (
+                <RenderData key={i} {...item} />
+              ))}
             </div>
             <div className="toggler-label-more">
               <label htmlFor="other-info-toggler">More stats</label>
@@ -251,43 +155,105 @@ const Pair = () => {
           </div>
         </div>
         <article className="desc-summary">
-          {coinAsset?.NAME ? (
-            <h1 style={{ marginBottom: "10px" }}>
-              What is {coinAsset?.NAME} ?
-            </h1>
-          ) : (
-            "Error loading the asset"
-          )}
-          {coinAsset?.ASSET_DESCRIPTION_SUMMARY
-            ? coinAsset?.ASSET_DESCRIPTION_SUMMARY
-            : "Error loading the asset description"}
+          <Desc coinAsset={coinAsset} />
         </article>
       </div>
     </>
   );
 };
 
-const get24HChange = async (crypto: string, fiat: string) => {
-  try {
-    const response = await fetch(
-      `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${crypto.toUpperCase()}&tsyms=${fiat.toUpperCase()}`,
-      {
-        headers: {
-          authorization: `Apikey ${process.env.NEXT_PUBLIC_API_KEY}`,
-        },
-      }
-    );
-    const {
-      DISPLAY: {
-        [crypto.toUpperCase()]: {
-          [fiat.toUpperCase()]: { CHANGE24HOUR },
-        },
-      },
-    } = await response.json();
-    return CHANGE24HOUR;
-  } catch (error) {
-    return "Error";
-  }
+export default Pair;
+
+const RenderData: FC<{ label: string; value: string | number }> = ({
+  label,
+  value,
+}) => {
+  const ref = useRef<HTMLSpanElement>(null);
+  return (
+    <div>
+      <div>{label}</div>
+      <div>
+        <LabelUpdateEffect _ref={ref} value={value} classToToggle="updated">
+          <span ref={ref}>{renderAfterCheck(value)}</span>
+        </LabelUpdateEffect>
+      </div>
+    </div>
+  );
 };
 
-export default Pair;
+const getInfo = ({
+  VOLUME24HOUR,
+  CIRCULATINGSUPPLYMKTCAP,
+  LASTMARKET,
+  LOW24HOUR,
+  LOWDAY,
+  LOWHOUR,
+  OPENDAY,
+  OPENHOUR,
+}: DisplayData) => [
+  {
+    label: "24H Volume :",
+    value: VOLUME24HOUR,
+  },
+  {
+    label: "Circulating Supply Market Cap :",
+    value: CIRCULATINGSUPPLYMKTCAP,
+  },
+  {
+    label: "Last Market :",
+    value: LASTMARKET,
+  },
+  {
+    label: "24 Hour Low :",
+    value: LOW24HOUR,
+  },
+  {
+    label: "Daily Lowest :",
+    value: LOWDAY,
+  },
+  {
+    label: "Hourly Lowest : ",
+    value: LOWHOUR,
+  },
+  {
+    label: "Daily Open : ",
+    value: OPENDAY,
+  },
+  {
+    label: "Hourly Open : ",
+    value: OPENHOUR,
+  },
+];
+
+const handlePair = (isReady: boolean, pair: string | undefined | string[]) => {
+  if (!isReady)
+    return {
+      validPair: false,
+      crypto: null,
+      fiat: null,
+    };
+  if (!pair)
+    return {
+      crypto: null,
+      fiat: null,
+      validPair: false,
+    };
+  if (Array.isArray(pair))
+    return {
+      crypto: null,
+      fiat: null,
+      validPair: false,
+    };
+  const [crypto, fiat] = pair.split("-");
+  if (fiat != "usd" || fiat.toUpperCase() != "USD")
+    return {
+      validPair: false,
+      crypto: null,
+      fiat: null,
+    };
+  return {
+    crypto,
+    fiat,
+    validPair: true,
+  };
+};

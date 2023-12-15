@@ -8,9 +8,9 @@ import {
 } from "react";
 import dynamic from "next/dynamic";
 import { SubList } from "../../types";
-import EventEmitter from "eventemitter3";
+import { Emitter } from "@/pages/_app";
 
-const WSContext = createContext<{
+export const WSContext = createContext<{
   socket: null | WebSocket;
   disconnect: (_: SubList) => void;
   reconnect: (_: SubList) => void;
@@ -19,8 +19,6 @@ const WSContext = createContext<{
   disconnect: () => {},
   reconnect: () => {},
 });
-
-const Emitter = new EventEmitter();
 
 const WSContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { current: socket } = useRef(
@@ -41,20 +39,21 @@ const WSContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
       subs: subList,
     });
 
-    console.log("hit reconnect");
     //meaning socket is in connecting state
     if (socket.readyState === 0) {
-      console.log("emitter received");
       Emitter.emit("reconnect", payload);
     } else {
-      console.log("sent directly");
       socket.send(payload);
     }
   };
 
   //the way to change channels
   const disconnect = (subList: SubList) => {
-    console.log("hit dissconnect");
+    //reset on callbacks
+    socket.onclose = () => {};
+    socket.onmessage = () => {};
+    socket.onopen = () => {};
+
     socket.send(
       JSON.stringify({
         action: "SubRemove",

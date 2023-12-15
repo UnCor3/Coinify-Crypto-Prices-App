@@ -36,15 +36,17 @@
   background: #000;
   transition: all 50ms ease;
   flex-direction: column;
+  max-height: 70px;
 }
 
 .search-bar input {
   padding: 10px 20px;
   position: relative;
   width: 10vw;
+  border-radius: 0.3rem;
 }
 
-.search-bar input:focus ~ svg   {
+.search-bar input:focus ~ svg {
   opacity: 0;
 }
 
@@ -57,21 +59,26 @@
   transition: all 200ms ease;
 }
 
-
 .search-bar input::placeholder {
   font-size: 120%;
 }
 
- .search-results {
+.search-results {
   display: none;
 }
 
-.search-bar input:focus-within ~ .search-results.desktop,.search-results.desktop:hover {
+.search-results.desktop {
+  border-bottom-right-radius: 0.4rem;
+  border-bottom-left-radius: 0.4rem;
+}
+
+.search-bar input:focus-within ~ .search-results.desktop,
+.search-results.desktop:hover {
   position: absolute;
   display: flex;
   flex-direction: column;
   width: 10vw;
-  background : black;
+  background: black;
   top: 100%;
   padding-bottom: 10px;
 }
@@ -83,7 +90,6 @@
   background: inherit;
 }
 
-
 .navbar-brand {
   font-size: 2rem;
   cursor: pointer;
@@ -93,23 +99,25 @@
   display: none;
 }
 
-@media all and (min-width: 1024px) and (max-width:1440px) {
+@media all and (min-width: 1024px) and (max-width: 1440px) {
   .search-bar input {
     width: 17.5vw;
   }
 
-  .search-bar input:focus ~ .search-results.desktop,.search-results.desktop:hover {
+  .search-bar input:focus ~ .search-results.desktop,
+  .search-results.desktop:hover {
     width: 17.5vw;
   }
 }
 
 @media all and (min-width: 1440px) {
-    .search-bar input {
-      width: 15vw;
-    }
-    .search-bar input:focus ~ .search-results.desktop,.search-results.desktop:hover {
-      width: 15vw;
-    }
+  .search-bar input {
+    width: 15vw;
+  }
+  .search-bar input:focus ~ .search-results.desktop,
+  .search-results.desktop:hover {
+    width: 15vw;
+  }
 }
 
 @media all and (min-width: 768px) and (max-width: 1024px) {
@@ -118,12 +126,12 @@
     height: 6vh;
   }
 
-  .search-bar input:focus ~ .search-results.desktop,.search-results.desktop:hover {
+  .search-bar input:focus ~ .search-results.desktop,
+  .search-results.desktop:hover {
     width: 23.5vw;
     height: 6vh;
   }
 }
-
 
 @media all and (max-width: 768px) {
   .navbar-wrapper {
@@ -135,7 +143,6 @@
     display: none;
   }
 
-  
   .navbar-left {
     padding-left: 20px;
   }
@@ -156,16 +163,16 @@
     height: 0.2rem;
     background: white;
     transition: all 250ms ease-in-out;
-}
+  }
 
   .sidebar-toggler.active .bar:nth-child(1) {
-    transform: rotate(-45deg) translate(-9px,10px);
+    transform: rotate(-45deg) translate(-9px, 10px);
   }
   .sidebar-toggler.active .bar:nth-child(2) {
     opacity: 0;
-}
+  }
 
   .sidebar-toggler.active .bar:nth-child(3) {
-    transform: rotate(45deg) translate(-6px,-8px);
+    transform: rotate(45deg) translate(-6px, -8px);
   }
 }

@@ -1,141 +1,158 @@
 .detailed-card {
-    padding: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    text-align: center;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
 }
 
 .important-info {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    padding: 0.4rem;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 0.4rem;
 }
 
 .important-info .important-info-wrapper {
-    min-width: 40%;
+  min-width: 40%;
 }
 
 .important-info .up-or-down {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-end;
-    width: 100%;
-    font-size: 1.2rem;
-    color: white;
-}   
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  width: 100%;
+  color: white;
+}
 
 .important-info .up-or-down.up div {
-    background-color: #16c784;
+  background-color: #16c784;
 }
 
 .up-or-down div {
-    width: min-content;
-    height: max-content;
-    padding: 0.3em 0.8em;
-    border-radius: 0.6rem;
-    background-color: grey;
+  width: max-content;
+  padding: 0.3em 0.8em;
+  border-radius: 0.6rem;
+  background-color: grey;
 }
 
-
-
 .important-info .important-info-wrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 
 .important-info .img-name {
-    font-size: 0.7rem;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
 }
 
-
 .important-info .img-name span {
-    color: grey;
-    opacity: 0.7;
+  color: grey;
+  opacity: 0.7;
+}
+
+.important-info .price {
+  font-size: 2rem;
 }
 
 .important-info .detailed-card-price {
-    font-size: 1.3rem;
-    font-weight: bolder;
+  font-size: 1.3rem;
+  font-weight: bolder;
 }
 
+.important-info .detailed-card-price .price {
+  white-space: nowrap;
+}
 
 .important-info div.updated {
-    color: grey;
-    opacity: 0.5;
-    transition: all 450ms ease-in-out;
+  color: grey;
+  opacity: 0.5;
+  transition: all 450ms ease-in-out;
 }
 
 .toggle-data {
-    display: none;
-    font-size: 0.70rem;
+  display: none;
+  /* font-size: 0.7rem; */
+  max-width: 800px;
+  margin: auto;
 }
 
-
 .detailed-card .toggler-label-more {
-    display: flex;
-    width: 100%;
-    height: 100%;
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 
 .detailed-card .toggler-label-more label {
-    width: 100%;
-    height: 100%;
-    padding: 10px;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
 }
 
 .detailed-card .other-info {
-    border-radius: 10px;
-    border: 2px solid black;
+  border-radius: 10px;
+  border: 2px solid black;
 }
 
 .detailed-card .other-info .toggler-label {
-    width: 100%;
-    height: min-content;
-    padding: 10px 20px;
+  width: 100%;
+  height: min-content;
+  padding: 10px 20px;
 }
 
 #other-info-toggler {
-    display: none;
-    padding: 10px;
-    border-radius: 10px;
-    border: 2px solid black;
+  display: none;
+  padding: 10px;
+  border-radius: 10px;
+  border: 2px solid black;
 }
 
-#other-info-toggler:checked + .toggle-data-wrapper .toggle-data{
-    display: flex;
+.detailed-card .other-info {
+  width: 100%;
+  max-width: 1100px;
+  margin: auto;
+  margin-top: 1rem;
+}
+
+#other-info-toggler:checked + .toggle-data-wrapper .toggle-data {
+  display: flex;
 }
 
 #other-info-toggler:checked + .toggle-data-wrapper {
-    padding: 1rem 1.2rem;
+  padding: 1rem 1.2rem;
 }
- 
+
 #other-info-toggler:checked ~ .toggle-data-wrapper .toggler-label-more {
-    display: none;
+  display: none;
 }
 
 .toggler-label-less {
-    display: none; 
+  display: none;
 }
 
 #other-info-toggler:checked ~ .toggle-data-wrapper .toggler-label-less {
-    display: flex;
+  display: flex;
 }
 
 #other-info-toggler:checked ~ .toggle-data-wrapper .toggler-label-less {
-    display: flex;
+  display: flex;
 }
 
 .toggler-label-less label {
-    width: 40%;
-    margin: 0 auto;
-    text-align: center;
-    border: 2px solid black;
-    padding: 0.7rem;
-    border-radius: 1rem;
+  width: 40%;
+  margin: 0 auto;
+  text-align: center;
+  border: 2px solid black;
+  padding: 0.7rem;
+  border-radius: 1rem;
+  transition: all ease 300ms;
+}
+
+.toggler-label-less label:hover {
+  background-color: black;
+  color: white;
 }
 
 /* .toggler-label-less , .toggler-label-more label {
@@ -147,100 +164,106 @@
 } */
 
 #other-info-toggler-less {
-    display: none;
+  display: none;
 }
 article.desc-summary {
-    margin-top: 1rem;
-    font-size: 1.5vw;
-    line-height: 160%;
-    text-align: left;
+  margin-top: 1rem;
+  /* font-size: 1.5vw; */
+  line-height: 160%;
+  text-align: left;
 }
 
 .other-info label {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .toggle-data {
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 10px;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .toggle-data div {
-    display: flex;
-    width: 100%;
+  display: flex;
+  width: 100%;
 }
 
-.toggle-data div div:first-child{
-    font-size: 0.9rem;
-    max-width: 55%;
-    text-align: left;
-    line-height: 140%;
+.toggle-data div div:first-child {
+  max-width: 55%;
+  text-align: left;
+  line-height: 140%;
 }
 
-
-.toggle-data div div:last-child{
-    justify-content: flex-end;
-    flex-grow: 1;
-    font-size: 0.9rem;    
+.toggle-data div div:last-child {
+  justify-content: flex-end;
+  flex-grow: 1;
 }
 
-div.volume-day, div.circulating-supply-mkt-cap,div.current-supply-mkt-cap, div.max-supply-mkt-cap {
+/* div.volume-day, div.circulating-supply-mkt-cap,div.current-supply-mkt-cap, div.max-supply-mkt-cap {
     margin: 2px;
     align-items: center;
-}
+} */
 
 .up-or-down {
-    width: min-content;
-    transition: all 1000ms cubic-bezier(0.23, 1, 0.320, 1);
-}
-
-.up-or-down div {
-    display: flex;
-    width: min-content;
+  width: min-content;
+  transition: all 1000ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .up-or-down.down div {
-    background: red;
+  background: red;
 }
 
-.up-or-down.updated {
-    color: rgba(128, 128, 128, 0.477);
-    opacity: 0.4;
+.up-or-down .coin-image {
+  width: 75px;
+  height: 75px;
+}
+
+.updated {
+  color: rgba(128, 128, 128, 0.477);
+  opacity: 0.4;
 }
 
 .coin-image {
-    width: 75px;
-    height: 75px;
+  width: 200px;
+  height: 200px;
 }
 
-@media all and (max-width : 768px) {
+.coin-profile {
+  display: flex;
+  flex-direction: column;
+}
+/* 
+.img-name {
+  margin-bottom: 1rem;
+} */
 
-    .detailed-card {
-        font-size: 1rem;
-    }
+@media all and (max-width: 768px) {
+  .detailed-card {
+    font-size: 1rem;
+  }
 
+  .coin-image {
+    width: 50px;
+    height: 50px;
+  }
 
-    .coin-image {
-        width: 50px;
-        height: 50px;
-    }
+  article.desc-summary {
+    font-size: 0.8rem;
+  }
 
-    article.desc-summary {
-        font-size: 0.8rem;
-    }
+  #other-info-toggler {
+    padding: unset;
+  }
 
-    #other-info-toggler {
-        padding: unset;
-        
-    }
+  .important-info .img-name {
+    font-size: 0.5rem;
+  }
 
-    .important-info .img-name {
-        font-size: 0.5rem;
-    }
-    
-    #other-info-toggler:checked + .toggle-data-wrapper {
-        padding: 0.6rem 0.6rem;
-    }
+  #other-info-toggler:checked + .toggle-data-wrapper {
+    padding: 0.6rem 0.6rem;
+  }
 
+  .important-info .detailed-card-price .price {
+    font-size: 1.3rem;
+  }
 }
