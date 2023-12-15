@@ -126,7 +126,7 @@ export default function Home() {
         <a
           href="https://min-api.cryptocompare.com/pricing"
           style={{ fontWeight: "bolder" }}
-          about="_blank"
+          target="_blank"
         >
           here
         </a>
