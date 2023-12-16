@@ -61,12 +61,11 @@ export default function Home() {
     if (!coins || isSubListSent.current || !socket) return;
     socket.onmessage = (msg) => {
       const parsed = JSON.parse(msg.data);
-      console.log(msg);
       try {
         //Throwing error
         if (parsed.TYPE == 429)
           setError(
-            "Due to api plan limitations you cannot have more than one tab open , please close other tabs and refresh the page.",
+            "Due to api plan limitations you cannot have more than one tab open , please close other tabs and refresh the page."
           );
 
         if (parsed.TYPE == 401 && parsed.MESSAGE === "INVALID_PARAMETER") {
